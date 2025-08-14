@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+    <!-- 首次访问引导：如有需要可跳转到 /intro，此逻辑由前端控制，可按需移除 -->
+    <script>
+        (function(){
+            try {
+                const hasSeenIntro = localStorage.getItem('hasSeenIntro');
+                if (!hasSeenIntro) {
+                    // 仅在直接访问根路径时重定向，避免死循环
+                    if (location.pathname === '/') {
+                        location.replace('/intro');
+                        return;
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
     <div class="container">
         <header>
             <h1>MEMO</h1>

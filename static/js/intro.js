@@ -1,291 +1,132 @@
-// NoteFlow 引导页面交互脚本
-class IntroController {
-    constructor() {
-        this.currentPage = 1;
-        this.totalPages = 3;
-        this.isScrolling = false;
-        this.scrollThreshold = 50;
-        
-        this.init();
+(function(){
+    const enterBtn = document.getElementById('enterApp');
+    const skipBtn = document.getElementById('skipIntro');
+    const dots = document.getElementById('paginationDots');
+    const panels = Array.from(document.querySelectorAll('.panel'));
+    const progressBar = document.getElementById('progressBar');
+    // 移除定制图形与胶囊交互，保留核心进入逻辑
+
+    function enterApp() {
+        try { localStorage.setItem('hasSeenIntro', '1'); } catch(e) {}
+        window.location.replace('/');
     }
-    
-    init() {
-        this.setupScrollListener();
-        this.setupProgressIndicator();
-        this.setupIntersectionObserver();
-        this.animateInitialPage();
-        this.setupKeyboardNavigation();
+
+    function onKeydown(e){
+        if (e.key === 'Enter') {
+            enterApp();
+        }
     }
-    
-    // 设置滚动监听
-    setupScrollListener() {
-        let scrollTimeout;
-        
-        window.addEventListener('wheel', (e) => {
-            if (this.isScrolling) return;
-            
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                if (Math.abs(e.deltaY) > this.scrollThreshold) {
-                    if (e.deltaY > 0 && this.currentPage < this.totalPages) {
-                        this.nextPage();
-                    } else if (e.deltaY < 0 && this.currentPage > 1) {
-                        this.prevPage();
-                    }
-                }
-            }, 50);
-        }, { passive: true });
-        
-        // 触摸设备支持
-        let touchStartY = 0;
-        let touchEndY = 0;
-        
-        window.addEventListener('touchstart', (e) => {
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-        
-        window.addEventListener('touchend', (e) => {
-            if (this.isScrolling) return;
-            
-            touchEndY = e.changedTouches[0].screenY;
-            const deltaY = touchStartY - touchEndY;
-            
-            if (Math.abs(deltaY) > this.scrollThreshold) {
-                if (deltaY > 0 && this.currentPage < this.totalPages) {
-                    this.nextPage();
-                } else if (deltaY < 0 && this.currentPage > 1) {
-                    this.prevPage();
-                }
-            }
-        }, { passive: true });
-    }
-    
-    // 设置进度指示器
-    setupProgressIndicator() {
-        const dots = document.querySelectorAll('.progress-dot');
-        
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                this.goToPage(index + 1);
-            });
-        });
-    }
-    
-    // 设置交叉观察器用于动画触发
-    setupIntersectionObserver() {
-        const observerOptions = {
-            threshold: 0.3,
-            rootMargin: '0px 0px -100px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
+
+    function setupRevealOnScroll() {
+        const reveals = Array.from(document.querySelectorAll('.panel .title, .panel .subtitle, .feature-card, .enter-btn'));
+        reveals.forEach(el => el.classList.add('reveal'));
+        const io = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    this.animatePageContent(entry.target);
+                    entry.target.classList.add('show');
                 }
             });
-        }, observerOptions);
-        
-        // 观察所有页面
-        document.querySelectorAll('.intro-page').forEach(page => {
-            observer.observe(page);
-        });
+        }, { threshold: 0.15 });
+        reveals.forEach(el => io.observe(el));
     }
-    
-    // 键盘导航
-    setupKeyboardNavigation() {
-        document.addEventListener('keydown', (e) => {
-            if (this.isScrolling) return;
-            
-            switch(e.key) {
-                case 'ArrowDown':
-                case 'PageDown':
-                case ' ':
-                    e.preventDefault();
-                    if (this.currentPage < this.totalPages) {
-                        this.nextPage();
-                    }
-                    break;
-                case 'ArrowUp':
-                case 'PageUp':
-                    e.preventDefault();
-                    if (this.currentPage > 1) {
-                        this.prevPage();
-                    }
-                    break;
-                case 'Home':
-                    e.preventDefault();
-                    this.goToPage(1);
-                    break;
-                case 'End':
-                    e.preventDefault();
-                    this.goToPage(this.totalPages);
-                    break;
-                case 'Enter':
-                    if (this.currentPage === this.totalPages) {
-                        this.enterApp();
-                    }
-                    break;
-            }
-        });
-    }
-    
-    // 下一页
-    nextPage() {
-        if (this.currentPage < this.totalPages) {
-            this.goToPage(this.currentPage + 1);
-        }
-    }
-    
-    // 上一页
-    prevPage() {
-        if (this.currentPage > 1) {
-            this.goToPage(this.currentPage - 1);
-        }
-    }
-    
-    // 跳转到指定页面
-    goToPage(pageNumber) {
-        if (pageNumber === this.currentPage || this.isScrolling) return;
-        
-        this.isScrolling = true;
-        this.currentPage = pageNumber;
-        
-        const targetPage = document.getElementById(`page${pageNumber}`);
-        
-        // 平滑滚动到目标页面
-        targetPage.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-        
-        // 更新进度指示器
-        this.updateProgressIndicator();
-        
-        // 重置滚动锁定
-        setTimeout(() => {
-            this.isScrolling = false;
-        }, 1000);
-    }
-    
-    // 更新进度指示器
-    updateProgressIndicator() {
-        const dots = document.querySelectorAll('.progress-dot');
-        
-        dots.forEach((dot, index) => {
-            if (index + 1 === this.currentPage) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    }
-    
-    // 动画页面内容
-    animatePageContent(page) {
-        const pageId = page.id;
-        const content = page.querySelector('.intro-content');
-        
-        // 添加基础动画
-        if (content) {
-            content.classList.add('animate');
-        }
-        
-        // 页面特定动画
-        switch(pageId) {
-            case 'page1':
-                this.animatePage1(page);
-                break;
-            case 'page2':
-                this.animatePage2(page);
-                break;
-            case 'page3':
-                this.animatePage3(page);
-                break;
-        }
-    }
-    
-    // 页面1动画
-    animatePage1(page) {
-        const features = page.querySelectorAll('.feature-item');
-        features.forEach((feature, index) => {
-            setTimeout(() => {
-                feature.style.animationPlayState = 'running';
-            }, index * 200);
-        });
-    }
-    
-    // 页面2动画
-    animatePage2(page) {
-        const cards = page.querySelectorAll('.feature-card');
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.classList.add('animate');
-            }, index * 150);
-        });
-    }
-    
-    // 页面3动画
-    animatePage3(page) {
-        const principles = page.querySelectorAll('.principle-item');
-        const visual = page.querySelector('.visual-element');
-        
-        principles.forEach((principle, index) => {
-            setTimeout(() => {
-                principle.classList.add('animate');
-            }, index * 200);
-        });
-        
-        if (visual) {
-            setTimeout(() => {
-                visual.classList.add('animate');
-            }, 600);
-        }
-    }
-    
-    // 初始页面动画
-    animateInitialPage() {
-        setTimeout(() => {
-            this.animatePageContent(document.getElementById('page1'));
-        }, 300);
-    }
-    
-    // 进入主应用
-    enterApp() {
-        // 添加退出动画
-        document.body.style.opacity = '0';
-        document.body.style.transform = 'scale(0.95)';
-        document.body.style.transition = 'all 0.5s ease';
-        
-        setTimeout(() => {
-            window.location.href = '/app';
-        }, 500);
-    }
-}
 
-// 全局函数
-function enterApp() {
-    if (window.introController) {
-        window.introController.enterApp();
+    // 文本丝滑滚动动画：分词上浮与交错延迟
+    function splitLines() {
+        const splitTargets = document.querySelectorAll('.anim-split');
+        splitTargets.forEach(el => {
+            if (el.dataset.split === '1') return;
+            el.dataset.split = '1';
+            const text = el.textContent.trim();
+            el.textContent = '';
+            const words = text.split(/\s+/);
+            words.forEach((word, wi) => {
+                const line = document.createElement('span');
+                line.className = 'split-line';
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'split-word';
+                wordSpan.style.transitionDelay = `${wi * 40}ms`;
+                wordSpan.textContent = (wi < words.length - 1) ? word + ' ' : word;
+                line.appendChild(wordSpan);
+                el.appendChild(line);
+            });
+        });
     }
-}
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    window.introController = new IntroController();
-    
-    // 添加页面加载动画
-    document.body.style.opacity = '0';
-    document.body.style.transform = 'scale(1.05)';
-    
-    setTimeout(() => {
-        document.body.style.opacity = '1';
-        document.body.style.transform = 'scale(1)';
-        document.body.style.transition = 'all 0.8s ease';
-    }, 100);
-});
+    function revealOnScroll() {
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    // anim-fadeup
+                    if (target.classList.contains('anim-fadeup')) {
+                        const delay = parseFloat(target.dataset.delay || '0');
+                        target.style.transitionDelay = `${Math.max(0, delay)}s`;
+                        target.classList.add('show');
+                    }
+                    // anim-stagger
+                    if (target.classList.contains('anim-stagger')) {
+                        target.classList.add('show');
+                    }
+                    // anim-split
+                    if (target.classList.contains('anim-split')) {
+                        target.querySelectorAll('.split-word').forEach(w => {
+                            w.classList.add('show');
+                        });
+                    }
+                }
+            });
+        }, { threshold: 0.2 });
 
-// 防止页面刷新时的闪烁
-window.addEventListener('beforeunload', () => {
-    document.body.style.opacity = '0';
-});
+        document.querySelectorAll('.anim-fadeup, .anim-stagger, .anim-split').forEach(el => io.observe(el));
+    }
+
+    function updateDots() {
+        const scrollTop = document.querySelector('.intro').scrollTop;
+        const viewport = window.innerHeight;
+        let activeIndex = 0;
+        panels.forEach((panel, idx) => {
+            const top = panel.offsetTop;
+            if (scrollTop + viewport/2 >= top) activeIndex = idx;
+        });
+        Array.from(dots.children).forEach((li, i) => li.classList.toggle('active', i === activeIndex));
+    }
+
+    function onScroll() {
+        const container = document.querySelector('.intro');
+        const max = container.scrollHeight - container.clientHeight;
+        const pct = max > 0 ? (container.scrollTop / max) * 100 : 0;
+        if (progressBar) progressBar.style.width = pct + '%';
+        updateDots();
+        // 跑马线速度轻微受滚动影响，增强动势
+        const track = document.querySelector('.marquee .track');
+        if (track) {
+            const base = container.scrollTop * 0.03; // 略增强联动
+            track.style.transform = `translateX(${-base}%)`;
+        }
+    }
+
+    function onDotClick(e) {
+        const target = e.target;
+        if (target.tagName === 'LI' && target.dataset.target) {
+            const idx = parseInt(target.dataset.target, 10);
+            const container = document.querySelector('.intro');
+            const panel = panels[idx];
+            if (panel) container.scrollTo({ top: panel.offsetTop, behavior: 'smooth' });
+        }
+    }
+
+    enterBtn && enterBtn.addEventListener('click', enterApp);
+    skipBtn && skipBtn.addEventListener('click', enterApp);
+    document.addEventListener('keydown', onKeydown);
+    document.addEventListener('DOMContentLoaded', () => {
+        setupRevealOnScroll();
+        splitLines();
+        revealOnScroll();
+        const container = document.querySelector('.intro');
+        container && container.addEventListener('scroll', onScroll, { passive: true });
+        dots && dots.addEventListener('click', onDotClick);
+        onScroll();
+        // 进入按钮保留
+    });
+})();
+
