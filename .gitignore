@@ -1,0 +1,55 @@
+# Go 相关
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+memo_app
+memo_app.exe
+
+# 测试覆盖率文件
+*.out
+coverage.html
+
+# 依赖目录
+vendor/
+
+# Go workspace 文件
+go.work
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 环境变量文件
+.env
+.env.local
+
+# 临时文件
+tmp/
+temp/
+
+# 数据库文件（如果使用 SQLite）
+*.db
+*.sqlite
+*.sqlite3
+
+# 构建产物
+dist/
+build/
+
+# 热重载配置
+.air.toml
+
+# Docker 相关
+.dockerignore

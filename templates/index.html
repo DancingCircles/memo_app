@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMO | 备忘录</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MEMO</h1>
+            <div class="header-right">
+                <button id="themeToggle" class="theme-toggle" title="切换主题">🌙</button>
+                <button id="addMemoBtn" class="btn-primary">+ 新建</button>
+            </div>
+        </header>
+
+        <!-- 统计仪表板 -->
+        <div class="stats-dashboard">
+            <div class="stats-card">
+                <div class="stats-number" id="totalMemos">0</div>
+                <div class="stats-label">总计</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number" id="pendingMemos">0</div>
+                <div class="stats-label">待办</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number" id="completedMemos">0</div>
+                <div class="stats-label">已完成</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number" id="completionRate">0%</div>
+                <div class="stats-label">完成率</div>
+            </div>
+            <div class="stats-card progress-card">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="stats-label">进度</div>
+            </div>
+        </div>
+
+        <!-- 侧边栏覆盖层 -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- 侧边栏 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>分类</h3>
+                <button id="closeSidebar" class="close-btn">×</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h4>标签</h4>
+                    <div class="tag-list" id="tagList">
+                        <div class="tag-item" data-tag="工作">工作 <span class="tag-count">0</span></div>
+                        <div class="tag-item" data-tag="生活">生活 <span class="tag-count">0</span></div>
+                        <div class="tag-item" data-tag="学习">学习 <span class="tag-count">0</span></div>
+                        <div class="tag-item" data-tag="重要">重要 <span class="tag-count">0</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="搜索备忘录..." class="search-input">
+                        <button id="searchBtn" class="search-btn">🔍</button>
+                    </div>
+                </div>
+                <div class="toolbar-center">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="pending">待办</button>
+                        <button class="filter-btn" data-filter="completed">已完成</button>
+                        <button class="filter-btn" data-filter="overdue">过期</button>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <select id="sortSelect" class="filter-select">
+                        <option value="date">按日期</option>
+                        <option value="priority">按优先级</option>
+                        <option value="title">按标题</option>
+                    </select>
+                    <select id="viewMode" class="filter-select">
+                        <option value="grid">网格视图</option>
+                        <option value="calendar">日历视图</option>
+                    </select>
+
+                </div>
+            </div>
+
+            <!-- 日历视图 -->
+            <div class="calendar-view" id="calendarView" style="display: none;">
+                <div class="calendar-header">
+                    <button id="prevMonth">‹</button>
+                    <h3 id="currentMonth">2024年1月</h3>
+                    <button id="nextMonth">›</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 日历将通过JavaScript生成 -->
+                </div>
+            </div>
+
+            <!-- 备忘录容器 -->
+            <div class="memo-container">
+
+                <div class="memo-grid" id="memoContainer">
+                    <!-- 示例备忘录卡片 -->
+                    <div class="memo-card" style="border-left-color: #FF0000;">
+                        <div class="memo-status">
+                            <input type="checkbox" class="status-checkbox" title="标记完成">
+                        </div>
+                        <div class="memo-favorite">
+                            <button class="favorite-btn">⭐</button>
+                        </div>
+                        <h3>示例备忘录</h3>
+                        <p>这是一个示例备忘录，展示了卡片的样式。实际内容将通过JavaScript动态生成。</p>
+                        <div class="memo-tags">
+                            <span class="tag">工作</span>
+                            <span class="tag">重要</span>
+                        </div>
+                        <div class="memo-meta">
+                            <span>优先级：高</span>
+                            <span>截止：2024-01-20</span>
+                        </div>
+                        <div class="memo-actions">
+                            <button onclick="openModal(this.closest('.memo-card').dataset)">编辑</button>
+                            <button onclick="deleteMemo(this.closest('.memo-card').dataset.id)">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑备忘录的模态框 -->
+    <div class="modal" id="memoModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">新建备忘录</h2>
+            <form id="memoForm">
+                <div class="form-group">
+                    <label for="title">标题</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">内容</label>
+                    <textarea id="content" name="content" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="priority">优先级</label>
+                    <select id="priority" name="priority">
+                        <option value="0">低</option>
+                        <option value="1">中</option>
+                        <option value="2">高</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">截止日期</label>
+                    <input type="date" id="dueDate" name="dueDate">
+                </div>
+                <div class="form-group">
+                    <label for="color">颜色标记</label>
+                    <input type="color" id="color" name="color" value="#FF0000">
+                </div>
+                <div class="form-group">
+                    <label for="tags">标签</label>
+                    <select id="tags" name="tags">
+                        <option value="">选择标签</option>
+                        <option value="工作">工作</option>
+                        <option value="生活">生活</option>
+                        <option value="学习">学习</option>
+                        <option value="重要">重要</option>
+                        <option value="紧急">紧急</option>
+                        <option value="娱乐">娱乐</option>
+                        <option value="健康">健康</option>
+                        <option value="购物">购物</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reminder">提醒设置</label>
+                    <select id="reminder" name="reminder">
+                        <option value="">无提醒</option>
+                        <option value="1">提前1天</option>
+                        <option value="3">提前3天</option>
+                        <option value="7">提前1周</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">保存</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2>确认删除</h2>
+            <p>确定要删除这个备忘录吗？此操作无法撤销。</p>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="cancelDeleteBtn">取消</button>
+                <button type="button" class="btn-primary" id="confirmDeleteBtn">删除</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <!-- 浮动操作按钮 - 多功能版 -->
+    <div class="fab-container">
+        <button class="fab main-fab" id="mainFab">+</button>
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab sub-fab" id="newMemo" title="新建备忘录">📝</button>
+            <button class="fab sub-fab" id="manageTagsBtn" title="管理标签">🏷️</button>
+            <button class="fab sub-fab" id="settingsBtn" title="设置">⚙️</button>
+        </div>
+    </div>
+
+    <!-- 标签管理模态框 -->
+    <div class="modal" id="tagManagementModal">
+        <div class="modal-content">
+            <h2>标签管理</h2>
+            <div class="form-group">
+                <label for="newTagInput">添加新标签</label>
+                <div class="tag-input-container">
+                    <input type="text" id="newTagInput" placeholder="输入标签名称" maxlength="10">
+                    <button id="addNewTagBtn" class="btn-primary">添加</button>
+                </div>
+            </div>
+            <div class="existing-tags-section">
+                <h3>现有标签</h3>
+                <div class="tags-grid" id="tagsGrid">
+                    <!-- 标签列表将通过JavaScript生成 -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="closeTagModalBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2>设置</h2>
+            <div class="settings-section">
+                <h3>外观</h3>
+                <div class="setting-item">
+                    <label>主题模式</label>
+                    <select id="themeSelect">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>默认视图</label>
+                    <select id="defaultViewSelect">
+                        <option value="grid">网格视图</option>
+                        <option value="calendar">日历视图</option>
+                    </select>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>功能</h3>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="autoSave"> 自动保存
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="notifications"> 桌面通知
+                    </label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-primary" id="saveSettingsBtn">保存</button>
+                <button type="button" class="btn-secondary" id="cancelSettingsBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷键提示 -->
+    <div class="shortcuts-hint" id="shortcutsHint">
+        <div class="shortcut-item">Ctrl + N - 新建备忘录</div>
+        <div class="shortcut-item">Ctrl + F - 搜索</div>
+        <div class="shortcut-item">Ctrl + S - 保存</div>
+        <div class="shortcut-item">Delete - 删除选中项</div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
