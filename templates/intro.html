@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteFlow - 智能笔记流</title>
+    <link rel="stylesheet" href="/static/css/intro.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 页面1: 欢迎页 -->
+    <section class="intro-page" id="page1">
+        <div class="intro-container">
+            <div class="intro-content">
+                <div class="intro-logo">
+                    <div class="logo-icon">📝</div>
+                    <h1 class="logo-text">NoteFlow</h1>
+                </div>
+                <h2 class="intro-title">智能笔记流</h2>
+                <p class="intro-subtitle">现代化的笔记管理系统</p>
+                <div class="intro-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">⚡</span>
+                        <span class="feature-text">极速响应</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎨</span>
+                        <span class="feature-text">简洁设计</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔒</span>
+                        <span class="feature-text">安全可靠</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <div class="scroll-arrow"></div>
+                <span class="scroll-text">向下滚动探索更多</span>
+            </div>
+        </div>
+        <div class="background-elements">
+            <div class="floating-element element-1"></div>
+            <div class="floating-element element-2"></div>
+            <div class="floating-element element-3"></div>
+        </div>
+    </section>
+
+    <!-- 页面2: 功能介绍 -->
+    <section class="intro-page" id="page2">
+        <div class="intro-container">
+            <div class="intro-content">
+                <h2 class="page-title">强大功能</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="card-icon">📝</div>
+                        <h3 class="card-title">智能编辑</h3>
+                        <p class="card-description">支持富文本编辑，实时保存，让创作更流畅</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon">🏷️</div>
+                        <h3 class="card-title">标签管理</h3>
+                        <p class="card-description">灵活的标签系统，让笔记分类井然有序</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon">🔍</div>
+                        <h3 class="card-title">快速搜索</h3>
+                        <p class="card-description">全文搜索，瞬间找到你需要的内容</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon">🌙</div>
+                        <h3 class="card-title">主题切换</h3>
+                        <p class="card-description">深色/浅色主题，保护你的眼睛</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="background-grid"></div>
+    </section>
+
+    <!-- 页面3: 设计理念 -->
+    <section class="intro-page" id="page3">
+        <div class="intro-container">
+            <div class="intro-content">
+                <h2 class="page-title">设计理念</h2>
+                <div class="design-showcase">
+                    <div class="design-text">
+                        <h3 class="design-title">德国瑞士设计风格</h3>
+                        <div class="design-principles">
+                            <div class="principle-item">
+                                <span class="principle-number">01</span>
+                                <div class="principle-content">
+                                    <h4>简洁至上</h4>
+                                    <p>去除多余元素，专注核心功能</p>
+                                </div>
+                            </div>
+                            <div class="principle-item">
+                                <span class="principle-number">02</span>
+                                <div class="principle-content">
+                                    <h4>功能导向</h4>
+                                    <p>每个设计都有其存在的意义</p>
+                                </div>
+                            </div>
+                            <div class="principle-item">
+                                <span class="principle-number">03</span>
+                                <div class="principle-content">
+                                    <h4>用户体验</h4>
+                                    <p>直观的操作，流畅的交互</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-visual">
+                        <div class="visual-element">
+                            <div class="mock-interface">
+                                <div class="mock-header"></div>
+                                <div class="mock-content">
+                                    <div class="mock-note"></div>
+                                    <div class="mock-note"></div>
+                                    <div class="mock-note"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cta-section">
+                    <h3 class="cta-title">准备好开始了吗？</h3>
+                    <p class="cta-subtitle">体验现代化的笔记管理</p>
+                    <button class="cta-button" onclick="enterApp()">
+                        <span class="button-text">进入 NoteFlow</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 进度指示器 -->
+    <div class="progress-indicator">
+        <div class="progress-dot active" data-page="1"></div>
+        <div class="progress-dot" data-page="2"></div>
+        <div class="progress-dot" data-page="3"></div>
+    </div>
+
+    <script src="/static/js/intro.js"></script>
+</body>
+</html>

@@ -26,7 +26,13 @@ func main() {
 	memoController := controllers.NewMemoController()
 
 	// 定义路由
+	// 引导页面路由
 	r.GET("/", func(c *gin.Context) {
+		c.HTML(200, "intro.html", gin.H{})
+	})
+
+	// 主应用路由
+	r.GET("/app", func(c *gin.Context) {
 		c.HTML(200, "index.html", gin.H{})
 	})
 
